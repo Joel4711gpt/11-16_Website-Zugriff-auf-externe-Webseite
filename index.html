@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog-Inhalte laden</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+          "Helvetica Neue", sans-serif;
+        line-height: 1.6;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #f4f7fb;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+      }
+
+      main {
+        background: #fff;
+        color: #1f2933;
+        max-width: 960px;
+        width: 100%;
+        border-radius: 18px;
+        padding: 2.5rem;
+        box-shadow: 0 20px 50px rgba(31, 41, 55, 0.15);
+      }
+
+      h1 {
+        font-size: clamp(2rem, 5vw, 2.6rem);
+        margin-top: 0;
+        color: #111827;
+      }
+
+      p {
+        margin-bottom: 1.5rem;
+        color: #4b5563;
+      }
+
+      button {
+        appearance: none;
+        border: none;
+        border-radius: 999px;
+        padding: 0.9rem 2.5rem;
+        background: linear-gradient(120deg, #2563eb, #7c3aed);
+        color: #fff;
+        font-size: 1.05rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 150ms ease, box-shadow 150ms ease;
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.35);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        filter: grayscale(0.4);
+        opacity: 0.8;
+        box-shadow: none;
+      }
+
+      button:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px rgba(37, 99, 235, 0.45);
+      }
+
+      #status-message {
+        margin-top: 1rem;
+        font-weight: 500;
+        color: #2563eb;
+      }
+
+      #content {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+
+      #content iframe,
+      #content img,
+      #content video {
+        max-width: 100%;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Blog-Inhalte abrufen</h1>
+      <p>
+        Klicke auf den Button, um die aktuellen Beiträge der Kategorie „Blog“ vom
+        Datenschutzverein zu laden und direkt hier auf der Seite anzuzeigen.
+      </p>
+      <button id="load-button">Starten</button>
+      <div id="status-message" role="status" aria-live="polite"></div>
+      <section id="content"></section>
+    </main>
+
+    <script>
+      const button = document.getElementById("load-button");
+      const content = document.getElementById("content");
+      const statusMessage = document.getElementById("status-message");
+
+      async function fetchBlogContent() {
+        button.disabled = true;
+        statusMessage.textContent = "Lade Inhalte ...";
+        content.innerHTML = "";
+
+        try {
+          const response = await fetch("https://www.datenschutzverein.de/kategorie/blog/");
+
+          if (!response.ok) {
+            throw new Error(`Fehlerhafte Antwort: ${response.status}`);
+          }
+
+          const html = await response.text();
+          content.innerHTML = html;
+          statusMessage.textContent = "Inhalte geladen.";
+        } catch (error) {
+          console.error(error);
+          statusMessage.textContent =
+            "Die Inhalte konnten nicht geladen werden. Bitte versuche es später erneut.";
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      button.addEventListener("click", fetchBlogContent);
+    </script>
+  </body>
+</html>
